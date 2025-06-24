@@ -27,7 +27,7 @@ analyzer = load_model()
 
 # User input
 st.markdown("### 🏢 Enter Business Info")
-business = st.text_input("Business Name (e.g., Starbucks)")
+business = st.text_input("Business Name (e.g., Jahangirnagar University)")
 location = st.text_input("Location (e.g., Dhaka, Bangladesh)")
 
 SERP_API_KEY = "15aae7e05c594f10ec289cdbbf03a6e116934c8c542e36634c08f6782cb6c56b"
