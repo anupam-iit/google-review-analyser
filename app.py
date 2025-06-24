@@ -7,21 +7,34 @@ st.set_page_config(page_title="Google Review Sentiment Analyzer", page_icon="�
 
 st.markdown("""
     <h2 style='text-align: center;'>🌍 Google Review Sentiment Analyzer</h2>
-    
 """, unsafe_allow_html=True)
 
+# Load improved model from HuggingFace
 @st.cache_resource
 def load_model():
-    return pipeline("sentiment-analysis")
+    model_name = "nlptown/bert-base-multilingual-uncased-sentiment"
+    return pipeline("sentiment-analysis", model=model_name)
 
 analyzer = load_model()
 
+# Convert model's output to sentiment
+def star_to_sentiment(label):
+    stars = int(label[0])
+    if stars >= 4:
+        return "POSITIVE"
+    elif stars == 3:
+        return "AVERAGE"
+    else:
+        return "NEGATIVE"
+
+# Input section
 st.markdown("### 🏢 Enter Business Info")
 business = st.text_input("Business Name (e.g., Jahangirnagar University)")
 location = st.text_input("Location (e.g., Dhaka, Bangladesh)")
 
-SERP_API_KEY = "15aae7e05c594f10ec289cdbbf03a6e116934c8c542e36634c08f6782cb6c56b"
+SERP_API_KEY = "15aae7e05c594f10ec289cdbbf03a6e116934c8c542e36634c08f6782cb6c56b"  
 
+# Get reviews from SerpAPI
 def fetch_reviews(business, location):
     search_url = "https://serpapi.com/search.json"
     search_params = {
@@ -44,20 +57,23 @@ def fetch_reviews(business, location):
     review_res = requests.get(search_url, params=review_params).json()
     return review_res.get("reviews", []), None
 
+# Analyze review sentiment
 def analyze_reviews(reviews):
     results = []
-    counts = {"POSITIVE": 0, "NEGATIVE": 0}
+    counts = {"POSITIVE": 0, "AVERAGE": 0, "NEUTRAL": 0}
 
     for r in reviews:
         text = r.get("snippet", "")
         if not text.strip():
             continue
-        sentiment = analyzer(text)[0]
-        label = sentiment['label']
-        score = sentiment['score']
+        prediction = analyzer(text)[0]
+        label_raw = prediction['label']  # e.g., "4 stars"
+        label = star_to_sentiment(label_raw)
+        score = prediction['score']
         results.append({
             "text": text,
             "label": label,
+            "stars": label_raw,
             "score": score
         })
         if label in counts:
@@ -65,6 +81,7 @@ def analyze_reviews(reviews):
 
     return results, counts
 
+# Main app logic
 if st.button("🔍 Analyze Reviews"):
     if business and location:
         with st.spinner("Fetching reviews..."):
@@ -81,18 +98,18 @@ if st.button("🔍 Analyze Reviews"):
             st.success(f"✅ {len(results)} reviews analyzed.")
             st.markdown(f"""
                 - 😊 Positive: {counts['POSITIVE']}
+                - 😐 Neutral: {counts['AVERAGE']}
                 - 😠 Negative: {counts['NEGATIVE']}
             """)
 
-            # Pie Chart Section
-            labels = ['Positive', 'Negative']
-            values = [counts['POSITIVE'], counts['NEGATIVE']]
-
+            # Pie chart
+            labels = ['Positive', 'Average', 'Negative']
+            values = [counts['POSITIVE'], counts['AVERAGE'], counts['NEGATIVE']]
             fig = px.pie(
                 names=labels,
                 values=values,
                 color=labels,
-                color_discrete_map={'Positive': 'green', 'Negative': 'red'},
+                color_discrete_map={'Positive': 'green', 'Average': 'gray', 'Negative': 'red'},
                 title="Sentiment Distribution"
             )
             fig.update_traces(textposition='inside', textinfo='percent+label')
@@ -100,10 +117,10 @@ if st.button("🔍 Analyze Reviews"):
 
             st.markdown("### 📋 Sample Reviews")
             for r in results[:10]:
-                label = "🟢 Positive" if r["label"] == "POSITIVE" else "🔴 Negative"
-                st.markdown(f"> **{label}** ({r['score']:.2f}): {r['text']}")
+                label = "🟢 Positive" if r["label"] == "POSITIVE" else "🟡 Average" if r["label"] == "AVERAGE" else "🔴 Negative"
+                st.markdown(f"> **{label}** ({r['stars']} | {r['score']:.2f}): {r['text']}")
     else:
-        st.warning("Please enter both Business and Location.")
+        st.warning("Please enter both Company Name and Location Accurately.")
 
 
 st.markdown("---")
