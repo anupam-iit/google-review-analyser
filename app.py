@@ -100,3 +100,12 @@ if st.button("🔍 Analyze Reviews"):
                 st.markdown(f"> **{label}** ({r['score']:.2f}): {r['text']}")
     else:
         st.warning("Please enter both Business and Location.")
+
+st.markdown("---")
+
+# Custom Footer
+st.markdown("""
+    <p style='text-align: center; font-size: 13px; color: gray;'>
+        Developed by Anupam Roy, A Student of IIT, JU
+    </p>
+""", unsafe_allow_html=True)
