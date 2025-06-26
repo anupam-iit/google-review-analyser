@@ -17,7 +17,7 @@ def load_model():
 
 analyzer = load_model()
 
-# Convert stars to custom label
+# Convert stars to label
 def star_to_sentiment(label):
     stars = int(label[0])
     if stars >= 4:
@@ -30,11 +30,11 @@ def star_to_sentiment(label):
 # UI Input
 st.markdown("### 🏢 Enter Business Info")
 business = st.text_input("Business Name (e.g., Jahangirnagar University)")
-location = st.text_input("Location (e.g., Dhaka, Bangladesh)")
+location = st.text_input("Location (e.g., Dhaka)")
 
-SERP_API_KEY = "15aae7e05c594f10ec289cdbbf03a6e116934c8c542e36634c08f6782cb6c56b"  # Replace with your own if not working
+SERP_API_KEY = "15aae7e05c594f10ec289cdbbf03a6e116934c8c542e36634c08f6782cb6c56b"  # Your SerpAPI key
 
-# Fetch reviews using SerpAPI
+# Fetch reviews from SerpAPI
 def fetch_reviews(business, location):
     search_url = "https://serpapi.com/search.json"
     search_params = {
@@ -44,11 +44,24 @@ def fetch_reviews(business, location):
         "api_key": SERP_API_KEY
     }
     search_res = requests.get(search_url, params=search_params).json()
-    try:
-        data_id = search_res['local_results'][0]['data_id']
-    except:
-        return [], "❌ Business not found or SerpAPI error."
 
+    local_results = search_res.get('local_results', [])
+    data_id = None
+    matched_name = ""
+
+    # Try multiple candidates to find one with data_id
+    for result in local_results:
+        if 'data_id' in result:
+            data_id = result['data_id']
+            matched_name = result.get('title', '')
+            break
+
+    if not data_id:
+        suggestions = [r.get("title", "Unknown") for r in local_results]
+        suggestion_msg = ", ".join(suggestions[:3])
+        return [], f"❌ Could not identify business. Did you mean: {suggestion_msg}?"
+
+    # Fetch reviews
     review_params = {
         "engine": "google_maps_reviews",
         "data_id": data_id,
@@ -81,23 +94,23 @@ def analyze_reviews(reviews):
 
     return results, counts
 
-# Main logic
+# Main app logic
 if st.button("🔍 Analyze Reviews"):
     if business and location:
-        with st.spinner("Fetching reviews..."):
+        with st.spinner("🔄 Searching and fetching reviews..."):
             reviews, error = fetch_reviews(business, location)
 
         if error:
             st.error(error)
         elif not reviews:
-            st.warning("⚠️ No reviews found.")
+            st.warning("⚠️ No reviews found for this business.")
         else:
-            with st.spinner("Analyzing sentiments..."):
+            with st.spinner("⚙️ Analyzing review sentiments..."):
                 results, counts = analyze_reviews(reviews)
 
             st.success(f"✅ {len(results)} reviews analyzed.")
 
-            # Show counts safely
+            # Show sentiment counts
             st.markdown(f"""
                 - 😊 Positive: {counts.get('POSITIVE', 0)}
                 - 😐 Average: {counts.get('AVERAGE', 0)}
@@ -117,6 +130,7 @@ if st.button("🔍 Analyze Reviews"):
             fig.update_traces(textposition='inside', textinfo='percent+label')
             st.plotly_chart(fig, use_container_width=True)
 
+            # Show sample reviews
             st.markdown("### 📋 Sample Reviews")
             for r in results[:10]:
                 label = (
@@ -126,7 +140,7 @@ if st.button("🔍 Analyze Reviews"):
                 )
                 st.markdown(f"> **{label}** ({r['stars']} | {r['score']:.2f}): {r['text']}")
     else:
-        st.warning("Please enter both Company Name and Location Accurately.")
+        st.warning("Please enter both business name and location.")
 
 # Footer
 st.markdown("---")
