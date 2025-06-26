@@ -27,56 +27,41 @@ def star_to_sentiment(label):
     else:
         return "NEGATIVE"
 
-# UI Input
-st.markdown("### 🏢 Enter Business Info")
-business = st.text_input("Business Name (e.g., Jahangirnagar University)")
-location = st.text_input("Location (e.g., Dhaka)")
+# ✅ Your Google Places API Key
+GOOGLE_API_KEY = "AIzaSyAEx0Frft6mSYuAT9m60_xTc4IERzNn9Ds"  
 
-SERP_API_KEY = "15aae7e05c594f10ec289cdbbf03a6e116934c8c542e36634c08f6782cb6c56b"  # Your SerpAPI key
-
-# Fetch reviews from SerpAPI
-def fetch_reviews(business, location):
-    search_url = "https://serpapi.com/search.json"
-    search_params = {
-        "engine": "google_maps",
-        "q": f"{business} {location}",
-        "type": "search",
-        "api_key": SERP_API_KEY
+# Get Place ID by text search
+def get_place_id(business_name):
+    url = f"https://maps.googleapis.com/maps/api/place/textsearch/json"
+    params = {
+        "query": business_name,
+        "key": GOOGLE_API_KEY
     }
-    search_res = requests.get(search_url, params=search_params).json()
+    res = requests.get(url, params=params).json()
+    results = res.get("results", [])
+    if not results:
+        return None, "❌ Business not found. Try refining the name."
+    return results[0]["place_id"], None
 
-    local_results = search_res.get('local_results', [])
-    data_id = None
-    matched_name = ""
-
-    # Try multiple candidates to find one with data_id
-    for result in local_results:
-        if 'data_id' in result:
-            data_id = result['data_id']
-            matched_name = result.get('title', '')
-            break
-
-    if not data_id:
-        suggestions = [r.get("title", "Unknown") for r in local_results]
-        suggestion_msg = ", ".join(suggestions[:3])
-        return [], f"❌ Could not identify business. Did you mean: {suggestion_msg}?"
-
-    # Fetch reviews
-    review_params = {
-        "engine": "google_maps_reviews",
-        "data_id": data_id,
-        "api_key": SERP_API_KEY
+# Get reviews using Place ID
+def get_reviews_by_place_id(place_id):
+    url = f"https://maps.googleapis.com/maps/api/place/details/json"
+    params = {
+        "place_id": place_id,
+        "fields": "name,rating,review,user_ratings_total",
+        "key": GOOGLE_API_KEY
     }
-    review_res = requests.get(search_url, params=review_params).json()
-    return review_res.get("reviews", []), None
+    res = requests.get(url, params=params).json()
+    result = res.get("result", {})
+    reviews = result.get("reviews", [])
+    return reviews, result.get("name", "Unknown")
 
 # Analyze sentiments
 def analyze_reviews(reviews):
     results = []
     counts = {"POSITIVE": 0, "AVERAGE": 0, "NEGATIVE": 0}
-
     for r in reviews:
-        text = r.get("snippet", "")
+        text = r.get("text", "")
         if not text.strip():
             continue
         prediction = analyzer(text)[0]
@@ -91,56 +76,60 @@ def analyze_reviews(reviews):
         })
         if label in counts:
             counts[label] += 1
-
     return results, counts
 
-# Main app logic
+# 🔍 UI Input
+st.markdown("### 🏢 Enter Business Name")
+business_name = st.text_input("Business Name (e.g., Jahangirnagar University or Divine IT Limited)")
+
+# 🔍 Start search
 if st.button("🔍 Analyze Reviews"):
-    if business and location:
-        with st.spinner("🔄 Searching and fetching reviews..."):
-            reviews, error = fetch_reviews(business, location)
-
-        if error:
-            st.error(error)
-        elif not reviews:
-            st.warning("⚠️ No reviews found for this business.")
-        else:
-            with st.spinner("⚙️ Analyzing review sentiments..."):
-                results, counts = analyze_reviews(reviews)
-
-            st.success(f"✅ {len(results)} reviews analyzed.")
-
-            # Show sentiment counts
-            st.markdown(f"""
-                - 😊 Positive: {counts.get('POSITIVE', 0)}
-                - 😐 Average: {counts.get('AVERAGE', 0)}
-                - 😠 Negative: {counts.get('NEGATIVE', 0)}
-            """)
-
-            # Pie chart
-            labels = ['Positive', 'Average', 'Negative']
-            values = [counts.get('POSITIVE', 0), counts.get('AVERAGE', 0), counts.get('NEGATIVE', 0)]
-            fig = px.pie(
-                names=labels,
-                values=values,
-                color=labels,
-                color_discrete_map={'Positive': 'green', 'Average': 'gray', 'Negative': 'red'},
-                title="Sentiment Distribution"
-            )
-            fig.update_traces(textposition='inside', textinfo='percent+label')
-            st.plotly_chart(fig, use_container_width=True)
-
-            # Show sample reviews
-            st.markdown("### 📋 Sample Reviews")
-            for r in results[:10]:
-                label = (
-                    "🟢 Positive" if r["label"] == "POSITIVE" else
-                    "🟡 Average" if r["label"] == "AVERAGE" else
-                    "🔴 Negative"
-                )
-                st.markdown(f"> **{label}** ({r['stars']} | {r['score']:.2f}): {r['text']}")
+    if not business_name:
+        st.warning("Please enter a business name.")
     else:
-        st.warning("Please enter both business name and location.")
+        with st.spinner("🔍 Searching on Google Maps..."):
+            place_id, error = get_place_id(business_name)
+            if error:
+                st.error(error)
+            else:
+                reviews, place_name = get_reviews_by_place_id(place_id)
+                if not reviews:
+                    st.warning("⚠️ No reviews found for this business.")
+                else:
+                    with st.spinner("⚙️ Analyzing sentiments..."):
+                        results, counts = analyze_reviews(reviews)
+
+                    st.success(f"✅ {len(results)} reviews analyzed for: **{place_name}**")
+
+                    # Display sentiment counts
+                    st.markdown(f"""
+                        - 😊 Positive: {counts.get('POSITIVE', 0)}
+                        - 😐 Average: {counts.get('AVERAGE', 0)}
+                        - 😠 Negative: {counts.get('NEGATIVE', 0)}
+                    """)
+
+                    # Pie chart
+                    labels = ['Positive', 'Average', 'Negative']
+                    values = [counts.get('POSITIVE', 0), counts.get('AVERAGE', 0), counts.get('NEGATIVE', 0)]
+                    fig = px.pie(
+                        names=labels,
+                        values=values,
+                        color=labels,
+                        color_discrete_map={'Positive': 'green', 'Average': 'gray', 'Negative': 'red'},
+                        title="Sentiment Distribution"
+                    )
+                    fig.update_traces(textposition='inside', textinfo='percent+label')
+                    st.plotly_chart(fig, use_container_width=True)
+
+                    # Sample Reviews
+                    st.markdown("### 📋 Sample Reviews")
+                    for r in results[:10]:
+                        label = (
+                            "🟢 Positive" if r["label"] == "POSITIVE" else
+                            "🟡 Average" if r["label"] == "AVERAGE" else
+                            "🔴 Negative"
+                        )
+                        st.markdown(f"> **{label}** ({r['stars']} | {r['score']:.2f}): {r['text']}")
 
 # Footer
 st.markdown("---")
