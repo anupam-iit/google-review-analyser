@@ -28,8 +28,8 @@ def star_to_sentiment(label):
         return "NEGATIVE"
 
 # ✅ Your Google Places API Key
-#GOOGLE_API_KEY = "AIzaSyAEx0Frft6mSYuAT9m60_xTc4IERzNn9Ds"  
-GOOGLE_API_KEY = st.secrets["google_api_key"]
+
+ GOOGLE_API_KEY = st.secrets["google_api_key"]
 
 # Get Place ID by text search
 def get_place_id(business_name):
@@ -81,7 +81,7 @@ def analyze_reviews(reviews):
 
 # 🔍 UI Input
 st.markdown("### 🏢 Enter Business Name")
-business_name = st.text_input("Business Name (e.g., Jahangirnagar University or Divine IT Limited)")
+business_name = st.text_input("Business Name (e.g., Jahangirnagar University)")
 
 # 🔍 Start search
 if st.button("🔍 Analyze Reviews"):
