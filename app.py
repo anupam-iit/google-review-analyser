@@ -29,7 +29,7 @@ def star_to_sentiment(label):
 
 # ✅ Your Google Places API Key
 
- GOOGLE_API_KEY = st.secrets["google_api_key"]
+GOOGLE_API_KEY = st.secrets["google_api_key"]
 
 # Get Place ID by text search
 def get_place_id(business_name):
