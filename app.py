@@ -138,4 +138,7 @@ st.markdown("""
     <p style='text-align: center; font-size: 13px; color: gray;'>
         Developed by Anupam Roy, A Student of IIT, JU
     </p>
+    <p style='text-align: center; font-size: 13px; color: gray;'>
+        anu.rex@gmail.com || 01723928176
+    </p>
 """, unsafe_allow_html=True)
