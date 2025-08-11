@@ -6,19 +6,13 @@ import plotly.express as px
 st.markdown(
     """
     <style>
+    /* ===== Background ===== */
     .stApp {
-        background-color: #f0f2f6; /* Light gray */
-        color: black; /* Ensure text stays black */
+        background: linear-gradient(to bottom right, #f7f9fc, #e6f0fa);
+        color: black;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
-st.markdown(
-    """
-    <style>
-    /* Search box style */
+    /* ===== Search Box ===== */
     .stTextInput > div > div > input {
         background-color: white !important;
         color: black !important;
@@ -27,9 +21,9 @@ st.markdown(
         padding: 8px;
     }
 
-    /* Button style */
+    /* ===== Analyze Button ===== */
     .stButton > button {
-        background-color: #4CAF50; /* Green button */
+        background-color: #4CAF50; /* Green */
         color: white !important;
         border: none;
         border-radius: 6px;
@@ -38,31 +32,41 @@ st.markdown(
         font-weight: bold;
         cursor: pointer;
     }
-
-    /* Button hover effect */
     .stButton > button:hover {
-        background-color: #45a049; /* Darker green on hover */
-        color: white !important;
+        background-color: #45a049; /* Darker green */
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-st.markdown(
-    """
-    <style>
-    /* Change background for st.success messages */
-    .stAlert.success {
-        background-color: #070e12; /* Light black background */
-        color: black;              /* Black text */
-        border: 1px solid #91d5ff; /* Soft blue border */
+
+    /* ===== Success Message ===== */
+    div[data-testid="stNotification"]:has(div svg[data-testid="stIconSuccess"]) {
+        background-color: #e6ffe6; /* Soft green */
+        border: 1px solid #b3ffb3;
         border-radius: 6px;
         padding: 10px;
+        color: black;
+    }
+
+    /* ===== Warning Message ===== */
+    div[data-testid="stNotification"]:has(div svg[data-testid="stIconWarning"]) {
+        background-color: #fff8e6; /* Soft yellow */
+        border: 1px solid #ffe58f;
+        border-radius: 6px;
+        padding: 10px;
+        color: black;
+    }
+
+    /* ===== Error Message ===== */
+    div[data-testid="stNotification"]:has(div svg[data-testid="stIconError"]) {
+        background-color: #ffe6e6; /* Soft red */
+        border: 1px solid #ffb3b3;
+        border-radius: 6px;
+        padding: 10px;
+        color: black;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 st.set_page_config(page_title="Google Review Sentiment Analyzer", page_icon="🌍")
 
