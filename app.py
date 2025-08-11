@@ -53,7 +53,7 @@ st.markdown(
     <style>
     /* Change background for st.success messages */
     .stAlert.success {
-        background-color: #e6f7ff; /* Light blue background */
+        background-color: #070e12; /* Light black background */
         color: black;              /* Black text */
         border: 1px solid #91d5ff; /* Soft blue border */
         border-radius: 6px;
