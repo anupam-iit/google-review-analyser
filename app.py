@@ -48,7 +48,21 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
+st.markdown(
+    """
+    <style>
+    /* Change background for st.success messages */
+    .stAlert.success {
+        background-color: #e6f7ff; /* Light blue background */
+        color: black;              /* Black text */
+        border: 1px solid #91d5ff; /* Soft blue border */
+        border-radius: 6px;
+        padding: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.set_page_config(page_title="Google Review Sentiment Analyzer", page_icon="🌍")
 
