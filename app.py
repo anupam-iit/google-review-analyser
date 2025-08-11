@@ -15,6 +15,22 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown(
+    """
+    <style>
+    /* Target Streamlit text input box */
+    .stTextInput > div > div > input {
+        background-color: white !important; /* White background */
+        color: black !important;            /* Black text */
+        border: 1px solid #ccc !important;  /* Light border */
+        border-radius: 6px;                 /* Rounded corners */
+        padding: 8px;                        /* Padding inside box */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.set_page_config(page_title="Google Review Sentiment Analyzer", page_icon="🌍")
 
 st.markdown("""
