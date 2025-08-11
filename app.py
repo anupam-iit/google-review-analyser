@@ -18,18 +18,37 @@ st.markdown(
 st.markdown(
     """
     <style>
-    /* Target Streamlit text input box */
+    /* Search box style */
     .stTextInput > div > div > input {
-        background-color: white !important; /* White background */
-        color: black !important;            /* Black text */
-        border: 1px solid #ccc !important;  /* Light border */
-        border-radius: 6px;                 /* Rounded corners */
-        padding: 8px;                        /* Padding inside box */
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid #ccc !important;
+        border-radius: 6px;
+        padding: 8px;
+    }
+
+    /* Button style */
+    .stButton > button {
+        background-color: #4CAF50; /* Green button */
+        color: white !important;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* Button hover effect */
+    .stButton > button:hover {
+        background-color: #45a049; /* Darker green on hover */
+        color: white !important;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 st.set_page_config(page_title="Google Review Sentiment Analyzer", page_icon="🌍")
 
