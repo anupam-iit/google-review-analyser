@@ -3,6 +3,17 @@ import requests
 from transformers import pipeline
 import plotly.express as px
 
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #f5f5f5; /* Light gray */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.set_page_config(page_title="Google Review Sentiment Analyzer", page_icon="🌍")
 
 st.markdown("""
