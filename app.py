@@ -38,7 +38,7 @@ st.markdown(
 
     /* ===== Success Message ===== */
     div[data-testid="stNotification"]:has(div svg[data-testid="stIconSuccess"]) {
-        background-color: #e6ffe6; /* Soft green */
+        background-color: #0a0a0a; /* Soft green */
         border: 1px solid #b3ffb3;
         border-radius: 6px;
         padding: 10px;
