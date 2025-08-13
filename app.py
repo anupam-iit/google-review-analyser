@@ -184,6 +184,7 @@ if st.button("🔍 Analyze Reviews"):
                         color=labels,
                         color_discrete_map={'Positive': 'green', 'Average': 'gray', 'Negative': 'red'},
                         title="Sentiment Distribution"
+                    )
                    
                     # ✅ Remove black background
                     fig.update_layout(
