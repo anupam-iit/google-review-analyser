@@ -175,6 +175,7 @@ if st.button("🔍 Analyze Reviews"):
                     """)
 
                     # Pie chart
+                    
                     labels = ['Positive', 'Average', 'Negative']
                     values = [counts.get('POSITIVE', 0), counts.get('AVERAGE', 0), counts.get('NEGATIVE', 0)]
                     fig = px.pie(
@@ -183,19 +184,15 @@ if st.button("🔍 Analyze Reviews"):
                         color=labels,
                         color_discrete_map={'Positive': 'green', 'Average': 'gray', 'Negative': 'red'},
                         title="Sentiment Distribution"
-                    )
-                    fig.update_traces(textposition='inside', textinfo='percent+label')
-                    st.plotly_chart(fig, use_container_width=True) 
+                   
                     # ✅ Remove black background
                     fig.update_layout(
                     paper_bgcolor='white',
                     plot_bgcolor='white'
                     )
                 
-
                     fig.update_traces(textposition='inside', textinfo='percent+label')
                     st.plotly_chart(fig, use_container_width=True)
-
 
                     # Sample Reviews
                     st.markdown("### 📋 Sample Reviews")
